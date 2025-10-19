@@ -1,0 +1,44 @@
+# Ambiente virtual
+.venv/
+venv/
+ENV/
+env/
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Arquivos temporários
+*.log
+*.tmp
+*.bak
+
+# Arquivos de configuração e credenciais
+*.env
+.env.*
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de compilação
+*.so
+*.dll
+*.exe
+*.out
+*.class
+
+# Arquivos de notebook
+.ipynb_checkpoints
+
+# Diretórios de upload e documentos
+uploads/
+documentos/
+
+# Arquivos gerados por IDEs
+.vscode/
+.idea/
+*.swp
+*.sublime-workspace
+*.sublime-project
