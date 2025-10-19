@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Documento</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <h2 class="mb-4">📄 Cadastrar Novo Documento</h2>
+        <form method="POST" class="bg-white p-4 rounded shadow-sm">
+            <div class="mb-3">
+                <label for="titulo" class="form-label">Título</label>
+                <input type="text" class="form-control" id="titulo" name="titulo" required>
+            </div>
+            <div class="mb-3">
+                <label for="ementa" class="form-label">Ementa</label>
+                <textarea class="form-control" id="ementa" name="ementa" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="numero" class="form-label">Número</label>
+                <input type="text" class="form-control" id="numero" name="numero" required>
+            </div>
+            <div class="mb-3">
+                <label for="ano" class="form-label">Ano</label>
+                <input type="number" class="form-control" id="ano" name="ano" required>
+            </div>
+            <div class="mb-3">
+                <label for="data_publicacao" class="form-label">Data de Publicação</label>
+                <input type="date" class="form-control" id="data_publicacao" name="data_publicacao" required>
+            </div>
+            <div class="mb-3">
+                <label for="tipo_documento_id" class="form-label">ID do Tipo de Documento</label>
+                <input type="number" class="form-control" id="tipo_documento_id" name="tipo_documento_id" required>
+            </div>
+            <div class="mb-3">
+                <label for="orgao_id" class="form-label">ID do Órgão</label>
+                <input type="number" class="form-control" id="orgao_id" name="orgao_id" required>
+            </div>
+            <div class="mb-3">
+                <label for="conteudo_texto" class="form-label">Conteúdo do Documento</label>
+                <textarea class="form-control" id="conteudo_texto" name="conteudo_texto" rows="5" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Cadastrar Documento</button>
+        </form>
+        <div class="mt-4">
+            <a href="/" class="btn btn-outline-secondary">← Voltar ao Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

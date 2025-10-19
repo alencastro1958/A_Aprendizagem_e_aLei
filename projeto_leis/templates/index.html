@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Pesquisa de Documentos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .container-fluid { max-width: 1400px; }
+        .sidebar { border-right: 1px solid #dee2e6; min-height: 100vh; }
+        .search-result { border-bottom: 1px solid #e9ecef; padding: 1.5rem 0; }
+        .search-result:last-child { border-bottom: none; }
+        .mark { background-color: #fff3cd; padding: 0.2em; }
+        .loading { text-align: center; padding: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar com Filtros -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        Filtros
+                    </h5>
+                    <ul class="nav flex-column" id="filters-container">
+                        <!-- Filtros serão carregados aqui via JavaScript -->
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Conteúdo Principal -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Pesquisa de Documentos</h1>
+                    <a href="/cadastrar" class="btn btn-success">+ Cadastrar Documento</a>
+                </div>
+
+                <!-- Barra de Pesquisa -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <form id="search-form">
+                            <div class="input-group">
+                                <input type="text" id="search-input" class="form-control form-control-lg" placeholder="Digite sua busca (ex: 'licitação', 'servidor público')">
+                                <button class="btn btn-primary btn-lg" type="submit">Pesquisar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Área de Resultados -->
+                <div id="results-container">
+                    <p class="text-muted">Digite um termo na barra de pesquisa para começar.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.getElementById('search-form');
+            const searchInput = document.getElementById('search-input');
+            const resultsContainer = document.getElementById('results-container');
+            const filtersContainer = document.getElementById('filters-container');
+
+            // Carrega os filtros da API
+            async function loadFilters() {
+                try {
+                    const response = await fetch('/api/filters');
+                    const filters = await response.json();
+                    
+                    let filterHtml = '<li class="nav-item"><h6 class="px-3 mt-3 mb-1">Tipo</h6></li>';
+                    filterHtml += '<li class="nav-item"><select class="form-select form-select-sm mb-3" id="filter-tipo"><option value="">Todos</option>';
+                    filters.tipos.forEach(tipo => {
+                        filterHtml += `<option value="${tipo.id}">${tipo.nome}</option>`;
+                    });
+                    filterHtml += '</select></li>';
+
+                    filterHtml += '<li class="nav-item"><h6 class="px-3 mt-3 mb-1">Órgão</h6></li>';
+                    filterHtml += '<li class="nav-item"><select class="form-select form-select-sm mb-3" id="filter-orgao"><option value="">Todos</option>';
+                    filters.orgaos.forEach(orgao => {
+                        filterHtml += `<option value="${orgao.id}">${orgao.nome}</option>`;
+                    });
+                    filterHtml += '</select></li>';
+                    
+                    filterHtml += '<li class="nav-item"><h6 class="px-3 mt-3 mb-1">Ano</h6></li>';
+                    filterHtml += '<li class="nav-item"><select class="form-select form-select-sm mb-3" id="filter-ano"><option value="">Todos</option>';
+                    filters.anos.forEach(ano => {
+                        filterHtml += `<option value="${ano}">${ano}</option>`;
+                    });
+                    filterHtml += '</select></li>';
+
+                    filtersContainer.innerHTML = filterHtml;
+
+                } catch (error) {
+                    console.error('Erro ao carregar filtros:', error);
+                }
+            }
+
+            async function performSearch() {
+                const query = searchInput.value.trim();
+                if (!query) {
+                    resultsContainer.innerHTML = '<p class="text-muted">Digite um termo para pesquisar.</p>';
+                    return;
+                }
+
+                resultsContainer.innerHTML = '<div class="loading"><div class="spinner-border text-primary" role="status"></div> Buscando...</div>';
+
+                const filters = {
+                    tipo: document.getElementById('filter-tipo').value,
+                    orgao: document.getElementById('filter-orgao').value,
+                    ano: document.getElementById('filter-ano').value,
+                };
+
+                try {
+                    const response = await fetch('/api/search', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query, filters })
+                    });
+                    const documents = await response.json();
+                    renderResults(documents);
+                } catch (error) {
+                    resultsContainer.innerHTML = '<p class="text-danger">Ocorreu um erro ao buscar os documentos.</p>';
+                    console.error('Erro na busca:', error);
+                }
+            }
+
+            function renderResults(documents) {
+                if (documents.length === 0) {
+                    resultsContainer.innerHTML = '<p class="text-muted">Nenhum documento encontrado para os termos informados.</p>';
+                    return;
+                }
+
+                let html = '';
+                documents.forEach(doc => {
+                    html += `
+                        <div class="search-result">
+                            <h5><a href="#" class="text-decoration-none">${doc.titulo} nº ${doc.numero}/${doc.ano}</a></h5>
+                            <p class="mb-1 text-muted"><strong>Tipo:</strong> ${doc.tipo} | <strong>Órgão:</strong> ${doc.orgao} | <strong>Data:</strong> ${doc.data_publicacao}</p>
+                            <p>${doc.ementa_destaque || doc.ementa}</p>
+                        </div>
+                    `;
+                });
+                resultsContainer.innerHTML = html;
+            }
+
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                performSearch();
+            });
+
+            filtersContainer.addEventListener('change', performSearch);
+
+            loadFilters();
+        });
+    </script>
+</body>
+</html>
